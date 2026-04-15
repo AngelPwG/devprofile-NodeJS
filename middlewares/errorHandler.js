@@ -22,8 +22,6 @@ function resolveStatus(err) {
 }
 
 /**
- * Builds a clean, serialisable error payload.
- * HTML is never included — all keys are plain strings or arrays.
  *
  * @param {number} status
  * @param {Error}  err
@@ -37,7 +35,6 @@ function buildPayload(status, err) {
     timestamp: new Date().toISOString(),
   };
 
-  // Attach structured Zod validation issues for easy client consumption
   if (err instanceof ZodError) {
     base.message = "Validation error";
     base.errors = err.errors.map((e) => ({
@@ -47,7 +44,6 @@ function buildPayload(status, err) {
     }));
   }
 
-  // In production, hide internal stack traces
   if (process.env.NODE_ENV !== "production" && err.stack) {
     base.stack = err.stack;
   }

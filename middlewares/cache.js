@@ -7,12 +7,9 @@
  * del perfil. Equivalente a cache.CanRefresh(UpdatedAt string).
  */
 
-// Equivalente a const TTL = time.Hour
-const TTL_MS = 60 * 60 * 1000; // 1 hora en milisegundos
+const TTL_MS = 60 * 60 * 1000;
 
 /**
- * Equivalente a CanRefresh(UpdatedAt string) (bool, int, error).
- *
  * @param {string} updatedAt  - Timestamp ISO 8601 guardado en la BD
  * @returns {{ canRefresh: boolean, retryAfterSeconds: number }}
  * @throws {Error} Si el timestamp no se puede parsear
@@ -23,8 +20,8 @@ export function canRefresh(updatedAt) {
     throw new Error(`cache: invalid timestamp: ${updatedAt}`);
   }
 
-  const elapsed = Date.now() - t.getTime();   // equivalente a time.Since(t)
-  const remaining = TTL_MS - elapsed;          // equivalente a TTL - time.Since(t)
+  const elapsed = Date.now() - t.getTime();
+  const remaining = TTL_MS - elapsed;
 
   if (remaining <= 0) {
     return { canRefresh: true, retryAfterSeconds: 0 };

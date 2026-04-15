@@ -3,12 +3,16 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { requestLogger } from "./middlewares/logger.js";
 import router from "./routes/index.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // ── Middlewares globales ─────────────────────────────────────────────────────
+
+// Loguea cada acción HTTP → PM2 captura en ./logs/out.log
+app.use(requestLogger);
 
 // Sólo acepta Content-Type: application/json en peticiones con body
 app.use(
