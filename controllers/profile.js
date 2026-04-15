@@ -71,8 +71,15 @@ export async function createProfile(req, res, next) {
     insertAuditLog("CREATE", username, req.ip);
 
     // w.WriteHeader(http.StatusCreated) + json.NewEncoder(w).Encode(profile)
-    return res.status(201).json({ success: true, data: { ...profile, id } });
+    return res.status(201).json({ ...profile, id });
   } catch (err) {
+    // Equivalente a strings.Contains(err.Error(), "user not found") en Go
+    if (
+      err.message.includes("user not found") ||
+      err.message.includes("Could not resolve to a User")
+    ) {
+      return next(httpError("github user not found", 404));
+    }
     return next(err);
   }
 }
@@ -87,7 +94,7 @@ export async function getAllProfiles(req, res, next) {
   try {
     // h.db.GetProfiles()
     const profiles = getProfiles();
-    return res.json({ success: true, data: profiles });
+    return res.json(profiles);
   } catch (err) {
     return next(err);
   }
@@ -113,7 +120,7 @@ export async function getOneProfile(req, res, next) {
     const repos = getRepositories(profile.id);
 
     // json.NewEncoder(w).Encode(map[string]interface{}{"profile": …, "repos": …})
-    return res.json({ success: true, data: { profile, repos } });
+    return res.json({ profile, repos });
   } catch (err) {
     return next(err);
   }
@@ -141,7 +148,6 @@ export async function updateOneProfile(req, res, next) {
     if (!ok) {
       // w.WriteHeader(http.StatusTooManyRequests)
       return res.status(429).json({
-        success: false,
         error: "too_soon",
         retry_after_seconds: retryAfterSeconds,
       });
@@ -160,8 +166,15 @@ export async function updateOneProfile(req, res, next) {
     // h.db.InsertAuditLog("UPDATE", username, ip)
     insertAuditLog("UPDATE", username, req.ip);
 
-    return res.json({ success: true, data: profile });
+    return res.json(profile);
   } catch (err) {
+    // Equivalente a strings.Contains(err.Error(), "user not found") en Go
+    if (
+      err.message.includes("user not found") ||
+      err.message.includes("Could not resolve to a User")
+    ) {
+      return next(httpError("github user not found", 404));
+    }
     return next(err);
   }
 }
@@ -189,7 +202,7 @@ export async function deleteOneProfile(req, res, next) {
     insertAuditLog("DELETE", username, req.ip);
 
     // json.NewEncoder(w).Encode(map[string]string{"message": "profile deleted successfully"})
-    return res.json({ success: true, message: "profile deleted successfully" });
+    return res.json({ message: "profile deleted successfully" });
   } catch (err) {
     return next(err);
   }
